@@ -21,7 +21,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
               ? "/usr/bin/google-chrome"
               : "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
         };
-    const browser = await puppeteer.launch(options);
+    const browser = await puppeteer.launch({
+      args: chrome.args,
+      executablePath: await chrome.executablePath,
+      headless: chrome.headless,
+    });
     const page = await browser.newPage();
     await page.goto(url as string, { waitUntil: "networkidle0" });
     return await page.screenshot({ type: "png" });
