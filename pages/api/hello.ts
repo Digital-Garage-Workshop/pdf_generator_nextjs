@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import puppeteer from "puppeteer-core";
 
 const handler = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { url } = req.body;
+  const { url } = req.query;
 
   const options = process.env.AWS_REGION
     ? {
@@ -22,7 +22,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       };
   const browser = await puppeteer.launch(options);
   const page = await browser.newPage();
-  await page.goto(url, { waitUntil: "networkidle0" });
+  await page.goto(url as string, { waitUntil: "networkidle0" });
   return await page.screenshot({ type: "png" });
 };
 export default handler;
