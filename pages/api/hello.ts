@@ -1,13 +1,28 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
-import type { NextApiRequest, NextApiResponse } from 'next'
+import chrome from "chrome-aws-lambda";
+import type { NextApiRequest, NextApiResponse } from "next";
+import puppeteer from "puppeteer-core";
 
-type Data = {
-  name: string
-}
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { url } = req.body;
 
-export default function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<Data>
-) {
-  res.status(200).json({ name: 'John Doe' })
-}
+  const options = process.env.AWS_REGION
+    ? {
+        args: chrome.args,
+        executablePath: await chrome.executablePath,
+        headless: chrome.headless,
+      }
+    : {
+        args: [],
+        executablePath:
+          process.platform === "win32"
+            ? "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"
+            : process.platform === "linux"
+            ? "/usr/bin/google-chrome"
+            : "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      };
+  const browser = await puppeteer.launch(options);
+  const page = await browser.newPage();
+  await page.goto(url, { waitUntil: "networkidle0" });
+  return await page.screenshot({ type: "png" });
+};
+export default handler;
