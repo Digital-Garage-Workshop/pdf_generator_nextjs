@@ -27,7 +27,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     return await page.screenshot({ type: "png" });
   } catch (error) {
     console.log(error);
-    res.end();
+    res.status(400).send(JSON.stringify(error));
   }
 };
 export default handler;
